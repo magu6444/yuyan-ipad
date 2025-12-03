@@ -117,8 +117,6 @@ function touchStarted() {
 // 最初の文字配置を計算する関数
 function initializeCharacters() {
   const lines = poemText.split('\n');
-  const initialFontSize = 20; // 最初の文字サイズ
-  const lineSpacing = 45;     // 行間（縦書きの列の間隔）
 
   // 最長の行を見つけて、詩全体を画面の中央に来るように調整（垂直方向の中心）
   let longestLineLength = 0;
@@ -127,13 +125,35 @@ function initializeCharacters() {
       longestLineLength = line.length;
     }
   });
+
+  // 画面サイズに合わせてフォントサイズと行間を動的に計算
+  const verticalPaddingRatio = 0.8; // 上下の余白確保 (80%使用)
+  const horizontalPaddingRatio = 0.9; // 左右の余白確保 (90%使用)
+  const spacingRatio = 2.25; // フォントサイズに対する行間の比率 (45/20 = 2.25)
+
+  // 高さ基準の最大フォントサイズ
+  const maxFontSizeHeight = (height * verticalPaddingRatio) / longestLineLength;
+
+  // 幅基準の最大フォントサイズ
+  // 全体の幅 = (行数 - 1) * 行間 + 文字幅
+  // 行間 = フォントサイズ * spacingRatio なので
+  // 全体の幅 = フォントサイズ * ((行数 - 1) * spacingRatio + 1)
+  const maxFontSizeWidth = (width * horizontalPaddingRatio) / ((lines.length - 1) * spacingRatio + 1);
+
+  // 小さい方を採用（画面に収まるように）
+  let initialFontSize = Math.min(maxFontSizeHeight, maxFontSizeWidth);
+
+  // 極端に小さくなりすぎないように、あるいは大きくなりすぎないように調整（必要であれば）
+  // initialFontSize = constrain(initialFontSize, 8, 30); 
+
+  const lineSpacing = initialFontSize * spacingRatio;
   const totalBlockHeight = longestLineLength * initialFontSize;
   const startY = (height - totalBlockHeight) / 2;
 
   // --- 水平方向の中心を計算するロジックを修正 ---
   // 1. 詩全体のブロックとしての幅を計算します
   const totalPoemWidth = (lines.length - 1) * lineSpacing;
-  
+
   // 2. ブロック全体が画面の中央に来るように、最初の列（一番右）のx座標を計算します
   let x = (width / 2) + (totalPoemWidth / 2);
   // --- 修正ここまで ---
@@ -157,7 +177,7 @@ function initializeCharacters() {
         charIndexForSound = specialCharCounter;
         specialCharCounter++;
       }
-      
+
       characters.push(new Character(char, charPos, initialFontSize, isSpecialLine, charIndexForSound));
     }
     x -= lineSpacing; // 次の列へ（左へ移動）
@@ -209,17 +229,17 @@ class Character {
       forceMagnitude *= this.forceMultiplier;
       repulsionForce.setMag(forceMagnitude);
       this.acc.add(repulsionForce);
-      
+
       // --- 音声再生処理 (バグ修正版) ---
       if (this.isSpecial) {
         // "ゆあーん" (index 0-3)
         if (this.charIndex >= 0 && this.charIndex <= 3 && !soundYuan.isPlaying()) {
           soundYuan.play();
-        } 
+        }
         // "ゆよーん" (index 4-7)
         else if (this.charIndex >= 4 && this.charIndex <= 7 && !soundYuyon.isPlaying()) {
           soundYuyon.play();
-        } 
+        }
         // "ゆやゆよん" (index 8-12)
         else if (this.charIndex >= 8 && this.charIndex <= 12 && !soundYuyayuyon.isPlaying()) {
           soundYuyayuyon.play();
