@@ -41,9 +41,9 @@ const repulsionRadius = 80; // マウスカーソルから文字が逃げ始め�
 
 // 音声ファイルを事前に読み込む
 function preload() {
-  soundYuan = loadSound('ゆやーん.wav');
-  soundYuyon = loadSound('ゆよーん.wav');
-  soundYuyayuyon = loadSound('ゆやゆよん.wav');
+  soundYuan = loadSound('yuyaan.wav');
+  soundYuyon = loadSound('yuyoon.wav');
+  soundYuyayuyon = loadSound('yuyayuyon.wav');
 }
 
 function setup() {
